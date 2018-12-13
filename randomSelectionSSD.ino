@@ -79,7 +79,6 @@ class Blinking{ // Creates an object for the LEDs that will blink using a timing
 int buttonPin = 7; // Sets the button pin
 int lastButtonState = 0; // Sets the last button state
 int currentButtonState = 0;
-int buttonReleased = 0;
 long counter = 0; // Initializes a counter variable that is used in the randomization
 
 Blinking led0(3); // Initializes LED0 on pin 3
