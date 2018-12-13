@@ -1,7 +1,7 @@
 // Proof of concept code written for a client needing a push button to randomly select a choice on a vending machine
 // In this code LEDs blink in a slow pattern when nothing happens
 // When the button is depressed, the LEDs blink in a faster pattern
-// Then when the button is released when an LED is selected based off of a continuous counter to blink
+// Then when the button is released an LED is selected based off of a continuous counter to blink
 // The randomness is based on the timing of a person pressing and releasing the button
 // Written by Mitchell Clifford (mtchllclffrd.com)
 // Proof read by Nik Lockwood (nikolardo.com)
@@ -101,25 +101,24 @@ void setup() {
 
 void loop() {
   currentButtonState = digitalRead(buttonPin); // Read if the button is pressed
-  buttonReleased = ButtonChangedState(currentButtonState); // Run a function to see if the button was released
 
   counter ++;
   if (counter > ledAmount){ //reset the counter if it goes above the amount of LEDs
     counter = 0;
   }
 
-  if (currentButtonState == 1 && buttonReleased == 0){ // If the button is pressed start a counter and change LED behavior
+  if (currentButtonState == 1){ // If the button is pressed start a counter and change LED behavior
     for (ledIndex = 0; ledIndex < ledAmount; ledIndex ++){ //Iterates through the LED array applying the update function for the fast pattern
       ledArray[ledIndex].Update(LOW, LOW);
     }
   }
-  else if (currentButtonState == 0 && buttonReleased == 1){ // If the button is released, reset the other LEDs, blink the led that corresponds to the current counter and then reset that LED
+  else if (currentButtonState == 0 && lastButtonState == 1){ // If the button is released, reset the other LEDs, blink the led that corresponds to the current counter and then reset that LED
      for (ledIndex = 0; ledIndex < ledAmount; ledIndex ++){ //Resets the LED objects
       ledArray[ledIndex].Update(HIGH, LOW);
      }
      ledArray[counter].Blink(); //Blinks the random LED
   }
-  else if (currentButtonState == 0 && buttonReleased == 0){ // If neither happens blink the LEDs at a slow speed
+  else if (currentButtonState == 0 && lastButtonState == 0){ // If neither happens blink the LEDs at a slow speed
     for (ledIndex = 0; ledIndex < ledAmount; ledIndex ++){ //Iterates through the LED array applying the update function for the slow pattern
       ledArray[ledIndex].Update(LOW, HIGH);
     }
@@ -127,22 +126,6 @@ void loop() {
   else{ // If the button is pressed and released throw an error
     Serial.println("error in button press state changes");
   }
+  lastButtonState = currentButtonState;
   delay(10);
 }
-
-int ButtonChangedState( int buttonState){ // Create a function that senses if the button has been released using the current state of the button
-  if (buttonState != lastButtonState){ // If the current and last state aren't the same...
-    if (buttonState == LOW){ // and the current state is LOW, then the button was released
-      buttonReleased = 1;
-    }
-    else{ // if not, it wasn't
-      buttonReleased = 0;
-    }
-  }
-  else{
-    buttonReleased = 0; // If they are the same the button was not released
-  }
-  lastButtonState = buttonState; // Set the last button state
-  return buttonReleased;
-}
-
